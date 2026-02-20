@@ -15,7 +15,7 @@ IMG_SIZE = (128, 128)
 BATCH_SIZE = 16
 EPOCHS = 30
 
-DATASET_DIR = "data/lattice"
+DATASET_DIR = "data"
 MODEL_SAVE_PATH = "arduino/models/sterlizer-model.keras"
 
 # Fixed: initialize as None — values set dynamically in validate_dataset()
@@ -309,3 +309,8 @@ if __name__ == "__main__":
 
     print(f"\n✅ Model saved to : {MODEL_SAVE_PATH}")
     print("🎉 Training complete! You can now run main-control.py")
+
+    # ADD THIS AT THE VERY END OF YOUR FILE
+    print("\n--- RUNNING A TEST PREDICTION ---")
+    # Replace 'test.jpg' with the path to an image you want to test
+    predict_image("test.jpg")
