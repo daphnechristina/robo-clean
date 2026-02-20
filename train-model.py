@@ -15,7 +15,7 @@ BATCH_SIZE = 16
 EPOCHS = 50 
 
 DATASET_DIR = "data"
-MODEL_SAVE_PATH = "arduino/models/sterlizer-model.keras"
+MODEL_SAVE_PATH = "models/sterilizer-model.keras"
 
 CLASS_NAMES = None
 NUM_CLASSES = None
@@ -96,32 +96,34 @@ def load_data():
 # ──────────────────────────────────────────────
 
 def build_model():
-    """Build Transfer Learning model foundation."""
-    
-    # Pre-trained base
+    """Build Transfer Learning model with Fine-Tuning capability."""
     base_model = tf.keras.applications.MobileNetV2(
         input_shape=(*IMG_SIZE, 3),
         include_top=False,
         weights='imagenet'
     )
     
-    # Freeze base so we don't destroy pre-learned features
-    base_model.trainable = False
+    # Unfreeze the last 20 layers of the base model (Fine-Tuning)
+    # This helps the model 'specialize' in your specific implant textures
+    base_model.trainable = True
+    for layer in base_model.layers[:-20]:
+        layer.trainable = False
 
     model = models.Sequential([
         base_model,
         layers.GlobalAveragePooling2D(),
-        layers.Dense(128, activation='relu'),
+        layers.BatchNormalization(), # Stabilizes learning
+        layers.Dense(256, activation='relu'),
         layers.Dropout(0.5), 
         layers.Dense(NUM_CLASSES, activation='softmax')
     ])
 
     model.compile(
-        optimizer=tf.keras.optimizers.Adam(learning_rate=0.0001),
+        # Use a very low learning rate for fine-tuning so we don't break the model
+        optimizer=tf.keras.optimizers.Adam(learning_rate=0.00001),
         loss="categorical_crossentropy",
         metrics=["accuracy"]
     )
-
     return model
 
 # ──────────────────────────────────────────────
